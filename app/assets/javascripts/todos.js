@@ -1,7 +1,5 @@
 // app/assets/javascripts/todos.js
 
-var checkboxId = "todo-" + data.id;
-
 function toggleDone() {
   var checkbox = this;
   var listItem = $(checkbox).parent();
@@ -49,42 +47,42 @@ function createTodo(title) {
     contentType: "application/json",
     dataType: "json"})
 
-    .done(function(data) {
-      console.log(data);
+  .done(function(data) {
+    console.log(data);
 
-      var checkboxId = "todo-" + data.id;
+    var checkboxId = "todo-" + data.id;
 
-      var listItem = $("<li></li>");
-      listItem.addClass("todo");
-      listItem.attr('data-id', data.id);
+    var listItem = $("<li></li>");
+    listItem.addClass("todo");
+    listItem.attr('data-id', data.id);
 
-      var checkbox = $('<input>');
-      checkbox.attr('type', 'checkbox');
-      checkbox.attr('id', checkboxId);
-      checkbox.val(1);
-      checkbox.bind('change', toggleDone);
+    var checkbox = $('<input>');
+    checkbox.attr('type', 'checkbox');
+    checkbox.attr('id', checkboxId);
+    checkbox.val(1);
+    checkbox.bind('change', toggleDone);
 
-      var space = document.createTextNode(" ");
+    var space = document.createTextNode(" ");
 
-      var label = $('<label></label>');
-      label.attr('for', checkboxId);
-      label.html(data.title);
+    var label = $('<label></label>');
+    label.attr('for', checkboxId);
+    label.html(data.title);
 
-      listItem.append(checkbox);
-      listItem.append(space);
-      listItem.append(label);
+    listItem.append(checkbox);
+    listItem.append(space);
+    listItem.append(label);
 
-      $("#todolist").append( listItem );
+    $("#todolist").append( listItem );
 
-      updateCounters();
-    })
+    updateCounters();
+  })
 
-    .fail(function(error) {
-      console.log(error);
+  .fail(function(error) {
+    console.log(error);
 
-      error_messsage = error.responseJSON.title[0];
-      showError(error_messsage);
-    });
+    error_messsage = error.responseJSON.title[0];
+    showError(error_messsage);
+  });
 }
 
 function showError(message) {
@@ -112,8 +110,25 @@ function submitTodo(event) {
 
 function cleanUpDoneTodos(event) {
   event.preventDefault();
-  $.when($(".completed").remove())
-    .then(updateCounters);
+
+  $.each($(".completed"), function(index, listItem) {
+    $listItem = $(listItem);
+    todoId = $(listItem).data('id');
+    deleteTodo(todoId);
+    $listItem.remove();
+  });
+}
+
+function deleteTodo(todoId) {
+  $.ajax({
+    type: "DELETE",
+    url: "/todos/" + todoId + ".json",
+    contentType: "application/json",
+    dataType: "json"})
+
+    .done(function(data) {
+      updateCounters();
+    });
 }
 
 $(document).ready(function() {
